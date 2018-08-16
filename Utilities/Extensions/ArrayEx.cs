@@ -186,6 +186,21 @@ namespace Utilities.Extensions
         //    }
         //}
 
+        public static FindResult<T> First<T>(this IEnumerable<T> sequence, Func<T, int, bool> predicate)
+        {
+            var i = 0;
+            foreach (var item in sequence)
+            {
+                if (predicate(item, i))
+                {
+                    return new FindResult<T>(i, item);
+                }
+                i++;
+            }
+
+            throw new InvalidOperationException("Sequence contains no matching element");
+        }
+
         public static IEnumerable<T> EmptyToNull<T>(this IEnumerable<T> sequence)
         {
             return sequence.IsEmpty()
@@ -313,9 +328,22 @@ namespace Utilities.Extensions
             }
         }
 
+        /// <summary>
+        /// This method does not use <seealso cref="object.GetHashCode"/>, so it can be slow.
+        /// Consider using <seealso cref="Distinct{T}(IEnumerable{T}, Func{T, T, bool}, Func{T, int})"/>
+        /// instead.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sequence"></param>
+        /// <param name="comparer"></param>
+        /// <returns></returns>
         public static IEnumerable<T> Distinct<T>(this IEnumerable<T> sequence, Func<T, T, bool> comparer)
         {
             return sequence.Distinct(new IEqualityComparerAction<T>(comparer));
+        }
+        public static IEnumerable<T> Distinct<T>(this IEnumerable<T> sequence, Func<T, T, bool> comparer, Func<T, int> getHashCode)
+        {
+            return sequence.Distinct(new IEqualityComparerAction<T>(comparer, getHashCode));
         }
         /// <summary>
         /// Uses type's default IEqualityComparer.
@@ -353,33 +381,56 @@ namespace Utilities.Extensions
             return sequence;
         }
 
-        public static int Find<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+        #region ##### FindXXX #####
+
+        public static int FindIndex<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+        {
+            return source.Find(predicate).Index;
+        }
+        public static int FindIndex<T>(this IEnumerable<T> source, IEnumerable<T> what)
+        {
+            return source.Find(what).Index;
+        }
+        public static IEnumerable<int> FindAllIndexes<T>(this IEnumerable<T> source, IEnumerable<T> what)
+        {
+            return source.FindAll(what).Select(fi => fi.Index);
+        }
+
+        public static FindResult<T> Find<T>(this IEnumerable<T> array, T value)
+        {
+            return array.Find(new[] { value });
+        }
+        public static IEnumerable<FindResult<T>> FindAll<T>(this IEnumerable<T> array, T value)
+        {
+            return array.FindAll(new[] { value });
+        }
+        public static FindResult<T> Find<T>(this IEnumerable<T> source, Func<T, bool> predicate)
         {
             int i = 0;
             foreach (var item in source)
             {
                 if (predicate(item))
                 {
-                    return i;
+                    return new FindResult<T>(i, item);
                 }
                 i++;
             }
 
-            return -1;
+            return new FindResult<T>();
         }
-        public static int Find<T>(this IEnumerable<T> source, IEnumerable<T> what)
+        public static FindResult<T> Find<T>(this IEnumerable<T> source, IEnumerable<T> what)
         {
             return source.Find(what, 0);
         }
-        public static async Task<int> FindAsync<T>(this IEnumerable<T> source, IEnumerable<T> what)
+        public static async Task<FindResult<T>> FindAsync<T>(this IEnumerable<T> source, IEnumerable<T> what)
         {
             return await Task.Run(() => source.Find(what, 0));
         }
-        public static async Task<int> FindAsync<T>(this IEnumerable<T> source, IEnumerable<T> what, int startIndex)
+        public static async Task<FindResult<T>> FindAsync<T>(this IEnumerable<T> source, IEnumerable<T> what, int startIndex)
         {
             return await Task.Run(() => source.Find(what, startIndex));
         }
-        public static int Find<T>(this IEnumerable<T> source, IEnumerable<T> what, int startIndex)
+        public static FindResult<T> Find<T>(this IEnumerable<T> source, IEnumerable<T> what, int startIndex)
         {
             List<T> sourceCopy = new List<T>(source);
             List<T> whatList = what.ToList();
@@ -397,16 +448,16 @@ namespace Utilities.Extensions
                     if (!whatList[j].Equals(sourceCopy[i + j]))
                         break;
                     else if (j == whatList.Count - 1)
-                        return removedCount + i;
+                        return new FindResult<T>(removedCount + i, source);
                 }
 
                 sourceCopy.RemoveRange(0, i + 1);
                 removedCount += i + 1;
             }
 
-            return -1;
+            return new FindResult<T>();
         }
-        public static List<int> FindAll<T>(this IEnumerable<T> source, IEnumerable<T> what)
+        public static IEnumerable<FindResult<T>> FindAll<T>(this IEnumerable<T> source, IEnumerable<T> what)
         {
             List<T> sourceCopy = new List<T>(source);
             List<T> whatList = what.ToList();
@@ -427,15 +478,16 @@ namespace Utilities.Extensions
                     else if (j == whatList.Count - 1)
                     {
                         positions.Add(removedCount + i);
+                        yield return new FindResult<T>(removedCount + i, source);
                     }
                 }
 
                 sourceCopy.RemoveRange(0, i + 1);
                 removedCount += i + 1;
             }
-
-            return positions;
         }
+
+        #endregion
 
         public static IEnumerable<double> NaNToZero(this IEnumerable<double> numbers)
         {
@@ -479,15 +531,6 @@ namespace Utilities.Extensions
         public static IEnumerable<double> InvertSignEach(this IEnumerable<double> values)
         {
             return values.Select(v => -v);
-        }
-
-        public static int Find<T>(this IEnumerable<T> array, T value)
-        {
-            return array.Find(new[] { value });
-        }
-        public static List<int> FindAll<T>(this IEnumerable<T> array, T value)
-        {
-            return array.FindAll(new[] { value });
         }
 
         #region ##### Primitives de/serialization #####
@@ -1120,7 +1163,7 @@ namespace Utilities.Extensions
 
         public static bool Contains<T>(this IList<T> source, IList<T> what)
         {
-            return Find(source, what) != -1;
+            return Find(source, what).Found;
         }
 
         public static T Replace<T, TElement>(this T array, TElement oldValue, TElement newValue)

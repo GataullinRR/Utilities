@@ -79,6 +79,7 @@
     <Compile Include="Extensions\DTO\ReadExactInfo.cs" />
     <Compile Include="Extensions\DynamicEx.cs" />
     <Compile Include="Extensions\Exceptions\ReadExactZeroReceivedException.cs" />
+    <Compile Include="Extensions\DTO\FindResult.cs" />
     <Compile Include="Extensions\MiscEx.cs" />
     <Compile Include="Extensions\Exceptions\ReadExactTimeoutException.cs" />
     <Compile Include="Extensions\SerializationEx.cs" />

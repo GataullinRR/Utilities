@@ -257,7 +257,7 @@ namespace Utilities
                 .SkipWhile(fi => fi.Name != from && from != null).ToArray();
             var endI = to == null 
                 ? fields.Length - 1 
-                : fields.Find(fi => fi.Name == to);
+                : fields.Find(fi => fi.Name == to).Index;
 
             for (int i = 0; i <= endI; i++)
             {
