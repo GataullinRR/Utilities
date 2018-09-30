@@ -32,6 +32,17 @@ namespace Utilities.Extensions
 
         #region ##### IEnumerable #####
 
+        public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> sequence)
+        {
+            foreach (var items in sequence)
+            {
+                foreach (var item in items)
+                {
+                    yield return item;
+                }
+            }
+        }
+
         public static T FirstItem<T>(this IEnumerable<T> sequence)
         {
             foreach (var item in sequence)
@@ -115,6 +126,16 @@ namespace Utilities.Extensions
 
         #region ##### AsXXX #####
 
+        /// <summary>
+        /// Just aggregates the values into the string with empty separator.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static string AsString<T>(this IEnumerable<T> values)
+        {
+            return values.AsString("");
+        }
         public static string AsString<T>(this IEnumerable<T> values, string splitter)
         {
             StringBuilder sb = new StringBuilder();
@@ -330,6 +351,18 @@ namespace Utilities.Extensions
 
         /// <summary>
         /// This method does not use <seealso cref="object.GetHashCode"/>, so it can be slow.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sequence"></param>
+        /// <param name="comparer"></param>
+        /// <returns></returns>
+        public static IEnumerable<IGrouping<TKey, T>> Group<T, TKey>(this IEnumerable<T> sequence, 
+            Func<T, TKey> keyExtractor, Func<TKey, TKey, bool> comparer)
+        {
+            return sequence.GroupBy(v => keyExtractor(v), v => v, new IEqualityComparerAction<TKey>(comparer));
+        }
+        /// <summary>
+        /// This method does not use <seealso cref="object.GetHashCode"/>, so it can be slow.
         /// Consider using <seealso cref="Distinct{T}(IEnumerable{T}, Func{T, T, bool}, Func{T, int})"/>
         /// instead.
         /// </summary>
@@ -421,6 +454,10 @@ namespace Utilities.Extensions
         public static FindResult<T> Find<T>(this IEnumerable<T> source, IEnumerable<T> what)
         {
             return source.Find(what, 0);
+        }
+        public static FindResult<T> FindLast<T>(this IEnumerable<T> source, IEnumerable<T> what)
+        {
+            return source.FindAll(what).LastOrDefault() ?? new FindResult<T>();
         }
         public static async Task<FindResult<T>> FindAsync<T>(this IEnumerable<T> source, IEnumerable<T> what)
         {

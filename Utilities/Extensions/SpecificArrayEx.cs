@@ -14,6 +14,24 @@ namespace Utilities.Extensions
     {
         #region ##### IEnumerable #####
 
+        public static string ToASCIIString(this IEnumerable<byte> sequence)
+        {
+            return Encoding.ASCII.GetString(sequence.ToArray());
+        }
+        public static string ToUTF8String(this IEnumerable<byte> sequence)
+        {
+            return Encoding.UTF8.GetString(sequence.ToArray());
+        }
+
+        public static IEnumerable<T> GetValues<T>(this IEnumerable<FindResult<T>> sequence)
+        {
+            return sequence.Where(fi => fi.Found).Select(fi => fi.Value);
+        }
+        public static IEnumerable<int> GetIndexes<T>(this IEnumerable<FindResult<T>> sequence)
+        {
+            return sequence.Where(fi => fi.Found).Select(fi => fi.Index);
+        }
+
         public static string ToBase64(this IEnumerable<byte> sequence)
         {
             return Convert.ToBase64String(sequence.ToArray());
@@ -22,6 +40,14 @@ namespace Utilities.Extensions
         public static MemoryStream ToMemoryStream(this IEnumerable<byte> sequence)
         {
             return new MemoryStream(sequence.ToArray());
+        }
+
+        public static MemoryStream ToExpandableMemoryStream(this IEnumerable<byte> sequence)
+        {
+            var ms = new MemoryStream();
+            ms.Write(sequence);
+
+            return ms;
         }
 
         /// <summary>

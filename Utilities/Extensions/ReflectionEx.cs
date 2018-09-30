@@ -15,5 +15,10 @@ namespace Utilities.Extensions
         {
             return t.IsAbstract && t.IsSealed;
         }
+
+        public static object GetDefaultValue(this Type t)
+        {
+            return t.IsValueType ? Activator.CreateInstance(t) : null;
+        }
     }
 }

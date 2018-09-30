@@ -13,6 +13,14 @@ using Utilities.Types;
 
 namespace Utilities.Extensions
 {
+    public enum StreamAccess
+    {
+        READ,
+        WRITE,
+        SEEK,
+        TIMEOUT
+    }
+
     public static class StreamEx
     {
         #region ##### To #####
@@ -25,6 +33,42 @@ namespace Utilities.Extensions
         #endregion
 
         #region ##### Stream #####
+
+        public static void EnsureAccess(this Stream stream, params StreamAccess[] streamAccesses)
+        {
+            foreach (var access in streamAccesses)
+            {
+                switch (access)
+                {
+                    case StreamAccess.READ:
+                        if (!stream.CanRead)
+                        {
+                            throw new NotSupportedException();
+                        }
+                        break;
+                    case StreamAccess.WRITE:
+                        if (!stream.CanWrite)
+                        {
+                            throw new NotSupportedException();
+                        }
+                        break;
+                    case StreamAccess.SEEK:
+                        if (!stream.CanSeek)
+                        {
+                            throw new NotSupportedException();
+                        }
+                        break;
+                    case StreamAccess.TIMEOUT:
+                        if (!stream.CanTimeout)
+                        {
+                            throw new NotSupportedException();
+                        }
+                        break;
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
+        }
 
         public static void Write(this Stream stream, IEnumerable<byte> buffer, int timeout)
         {
@@ -325,6 +369,11 @@ namespace Utilities.Extensions
             }
         }
 
+        /// <summary>
+        /// Changes the <see cref="Stream.Position"/> during enumeration!
+        /// </summary>
+        /// <param name="sr"></param>
+        /// <returns></returns>
         public static IEnumerable<string> ReadAllLines(this StreamReader sr)
         {
             string line;
@@ -334,6 +383,11 @@ namespace Utilities.Extensions
             }
         }
 
+        /// <summary>
+        /// Changes the <see cref="Stream.Position"/> during enumeration!
+        /// </summary>
+        /// <param name="sr"></param>
+        /// <returns></returns>
         public static IEnumerable<char> ReadAllText(this StreamReader sr)
         {
             int ch;

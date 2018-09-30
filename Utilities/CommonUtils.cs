@@ -196,11 +196,10 @@ namespace Utilities
             throw new ArgumentOutOfRangeException();
         }
         public static int Classify<T>(T element, params T[] elements)
-            where T : struct
         {
             for (int i = 0; i < elements.Length; i++)
             {
-                if (element.Equals(elements[i]))
+                if (element?.Equals(elements[i]) ?? elements[i] == null)
                 {
                     return i;
                 }

@@ -39,23 +39,33 @@ namespace Utilities
 
         public static IEnumerable<T> ConcatSequences<T>(params IEnumerable<T>[] arrays)
         {
-            IEnumerable<T> result = Enumerable.Empty<T>();
-            for (int i = 0; i < arrays.Length; i++)
-            {
-                result = result.Concat(arrays[i]);
-            }
+            return ConcatAllSequences(arrays.AsEnumerable());
 
-            return result;
+            //IEnumerable<T> result = Enumerable.Empty<T>();
+            //for (int i = 0; i < arrays.Length; i++)
+            //{
+            //    result = result.Concat(arrays[i]);
+            //}
+
+            //return result;
         }
         public static IEnumerable<T> ConcatAllSequences<T>(IEnumerable<IEnumerable<T>> arrays)
         {
-            IEnumerable<T> result = Enumerable.Empty<T>();
             foreach (var array in arrays)
             {
-                result = result.Concat(array);
+                foreach (var item in array)
+                {
+                    yield return item;
+                }
             }
 
-            return result;
+            //IEnumerable<T> result = Enumerable.Empty<T>();
+            //foreach (var array in arrays)
+            //{
+            //    result = result.Concat(array);
+            //}
+
+            //return result;
         }
 
         public static CompareResult Compare<T>
