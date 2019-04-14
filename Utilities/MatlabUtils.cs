@@ -57,6 +57,55 @@ namespace Utilities
                 throw new ArgumentException("Bad format");
             }
         }
+        public static double[] ParseVariableViewRow(string row)
+        {
+            return row
+                .Replace(" ", "")
+                .Replace(",", ".")
+                .Split('\t')
+                .Select(v => v.ParseToDoubleInvariant()).ToArray();
+        }
+        /// <summary>
+        /// Parses the matrix given in format: [X1 X2;\nX3 X4 ...] or X1\tX2\n\X3\tX4\t...
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        public static double[,] ParseMatrix(string matrix)
+        {
+            var isVariableViewFormat = !matrix.StartsWith("[");
+            if (isVariableViewFormat)
+            {
+                var r = matrix
+                    .Split(Global.NL)
+                    .Select(ParseVariableViewRow).ToArray();
+
+                return matrix
+                    .Split(Global.NL)
+                    .Select(ParseVariableViewRow)
+                    .ToMatrix();
+            }
+            else
+            {
+                var parsed = matrix
+                    .Remove("[")
+                    .Remove("]")
+                    .Remove(Global.NL)
+                    .Split(';')
+                    .Select(r => r.Split(" ").ParseToDoubleInvariant().ToArray())
+                    .ToArray();
+                var columnsCount = parsed.EmptyToNull()?.ElementAt(0)?.Length ?? 0;
+                var squareMatrix = new double[parsed.Length, columnsCount];
+                for (int row = 0; row < squareMatrix.GetLength(0); row++)
+                {
+                    for (int column = 0; column < squareMatrix.GetLength(1); column++)
+                    {
+                        squareMatrix[row, column] = parsed[row][column];
+                    }
+                }
+
+                return squareMatrix;
+            }
+        }
 
         public static double[] ColonOp(double arg1, double arg2)
         {
@@ -118,6 +167,25 @@ namespace Utilities
                 x += step;
             }
             return result;
+        }
+
+        public static IEnumerable<char> ToArray(IEnumerable<double> array)
+        {
+            return array
+                .Select(v => " " + v.ToStringInvariant())
+                .Flatten()
+                .Skip(1);
+        }
+        public static IEnumerable<char> ToArray(IEnumerable<IEnumerable<double>> array)
+        {
+            return array
+                .Select(row => ";" + ToArray(row).Aggregate())
+                .Flatten()
+                .Skip(1);
+        }
+        public static IEnumerable<char> ToArray(IEnumerable<int> array)
+        {
+            return ToArray(array.ToDoubles());
         }
     }
 }

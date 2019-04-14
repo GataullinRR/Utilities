@@ -25,5 +25,16 @@ namespace Utilities
         {
             return Task.Run(delegate { }).ConfigureAwait(false);
         }
+
+        public static Task[] RunInParallel(params Action[] actions)
+        {
+            var tasks = new List<Task>();
+            foreach (var action in actions)
+            {
+                tasks.Add(Task.Run(action));
+            }
+
+            return tasks.ToArray();
+        }
     }
 }

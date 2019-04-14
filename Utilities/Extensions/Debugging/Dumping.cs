@@ -11,9 +11,42 @@ namespace Utilities.Extensions.Debugging
 {
     public static class Dumping
     {
-        public static void Dump(this object obj, string name)
+        public static T Dump<T>(this T obj, object name)
         {
-            Console.WriteLine($"{name}: {obj.ToString()}");
+            obj.ToString().Dump(name);
+
+            return obj;
+        }
+        public static double Dump(this double obj, object name, int round)
+        {
+            obj.Round(round).Dump(name);
+
+            return obj;
+        }
+        public static double Dump(this double obj, object name)
+        {
+            obj.ToStringInvariant().Dump(name);
+
+            return obj;
+        }
+        public static T Dump<T>(this T obj)
+        {
+            obj.ToString().Dump();
+
+            return obj;
+        }
+
+        public static string Dump(this string obj, object name)
+        {
+            $"{name.ToString()}: {obj.ToString()}".Dump();
+
+            return obj;
+        }
+        public static string Dump(this string line)
+        {
+            Console.WriteLine(line);
+
+            return line;
         }
     }
 }

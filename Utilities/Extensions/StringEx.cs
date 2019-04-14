@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Windows;
 
 namespace Utilities.Extensions
 {
@@ -109,6 +110,13 @@ namespace Utilities.Extensions
         public static string Remove(this string str, string entity)
         {
             return str.Replace(entity, "");
+        }
+
+        public static string ToClipboard(this string str)
+        {
+            Clipboard.SetText(str);
+
+            return str;
         }
     }
 }

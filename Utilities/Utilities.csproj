@@ -61,6 +61,9 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\..\WORK\BiPhase\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -73,16 +76,19 @@
     <Compile Include="CharUtils.cs" />
     <Compile Include="CommonInterfaces.cs" />
     <Compile Include="CommonUtils.cs" />
+    <Compile Include="ConvertUtils.cs" />
     <Compile Include="DateTimeUtils.cs" />
     <Compile Include="DebugUtils.cs" />
     <Compile Include="Extensions\Debugging\Dumping.cs" />
     <Compile Include="Extensions\DTO\ReadExactInfo.cs" />
+    <Compile Include="Extensions\DTO\Table.cs" />
     <Compile Include="Extensions\DynamicEx.cs" />
     <Compile Include="Extensions\Exceptions\ReadExactZeroReceivedException.cs" />
     <Compile Include="Extensions\DTO\FindResult.cs" />
     <Compile Include="Extensions\MiscEx.cs" />
     <Compile Include="Extensions\Exceptions\ReadExactTimeoutException.cs" />
     <Compile Include="Extensions\SerializationEx.cs" />
+    <Compile Include="Extensions\SerialPortEx.cs" />
     <Compile Include="InteropUtils.cs" />
     <Compile Include="Extensions\SpecificArrayEx.cs" />
     <Compile Include="Extensions\StreamEx.cs" />
@@ -97,6 +103,8 @@
     <Compile Include="Extensions\ThrowEx.cs" />
     <Compile Include="Extensions\WPFEx.cs" />
     <Compile Include="IOUtils.cs" />
+    <Compile Include="MathUtils.cs" />
+    <Compile Include="MiscUtils.cs" />
     <Compile Include="ProfilingUtils.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -120,7 +128,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Extensions\StringEx.cs" />
     <Compile Include="Types\Breaker.cs" />
+    <Compile Include="Types\CachedEnumerable.cs" />
+    <Compile Include="Types\DisplaceCollection.cs" />
     <Compile Include="Types\Disposable.cs" />
+    <Compile Include="Types\DisposingActions.cs" />
     <Compile Include="Types\EnhancedEnumerator.cs" />
     <Compile Include="Types\Comparer.cs" />
     <Compile Include="Types\Counter.cs" />
@@ -128,8 +139,12 @@
     <Compile Include="Types\DisposingAction.cs" />
     <Compile Include="Types\DPerformer.cs" />
     <Compile Include="Types\Enumerable.cs" />
+    <Compile Include="Types\Enumerator.cs" />
+    <Compile Include="Types\Extensions\CounterEx.cs" />
     <Compile Include="Types\IComparerAction.cs" />
     <Compile Include="Types\IEqualityComparerAction.cs" />
+    <Compile Include="Types\ListBase.cs" />
+    <Compile Include="Types\Matlab\Class1.cs" />
     <Compile Include="Types\Reporter.cs" />
     <Compile Include="Types\GCPinner.cs" />
     <Compile Include="Types\ICloneable.cs" />

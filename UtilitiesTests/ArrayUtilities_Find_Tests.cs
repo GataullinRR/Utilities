@@ -56,7 +56,7 @@ namespace Utilities.Tests
 
         void testFind(List<byte> what, int expected)
         {
-            int position = _source.Find(what);
+            int position = _source.Find(what).Index;
             Assert.AreEqual(expected, position);
         }
     }

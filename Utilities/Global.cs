@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using Utilities;
@@ -19,6 +20,15 @@ namespace Utilities
         {
             Console.WriteLine("Press any key to exit");
             Console.ReadKey();
+        }
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool AllocConsole();
+
+        public static void OpenConsole()
+        {
+            AllocConsole();
         }
     }
 }

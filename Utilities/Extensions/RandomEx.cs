@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Utilities;
 using Utilities.Extensions;
+using Utilities.Types;
 
 namespace Utilities.Extensions
 {
@@ -55,6 +56,10 @@ namespace Utilities.Extensions
             return from.AddMilliseconds(offset);
         }
 
+        public static int NextSign(this Random rnd)
+        {
+            return rnd.NextBool() ? 1 : -1;
+        }
 
         public static double NextDouble(this Random rnd, double from, double to)
         {
@@ -117,6 +122,63 @@ namespace Utilities.Extensions
             }
 
             return result;
+        }
+
+        public static IEnumerable<T> NextArray<T>(this Random rnd, IEnumerable<T> elements, int count)
+        {
+            if (elements is IList<T> == false)
+            {
+                elements = elements.ToArray();
+            }
+
+            var eCount = elements.Count();
+            for (int i = 0; i < count; i++)
+            {
+                yield return elements.ElementAt(rnd.Next(eCount));
+            }
+        }
+
+        public static IEnumerable<T> NextArray<T>(this Random rnd, IEnumerable<T> elements, int count, int maxNumOfSameElementsInRow)
+        {
+            if (maxNumOfSameElementsInRow < 1)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+            if (elements is IList<T> == false)
+            {
+                elements = elements.ToArray();
+            }
+            if (elements.Count() < 2 && count > maxNumOfSameElementsInRow)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            var eCount = elements.Count();
+            var lastI = 0;
+            var eICount = 0;
+            for (int i = 0; i < count; i++)
+            {
+                var eI = rnd.Next(eCount);
+                if (eI == lastI)
+                {
+                    eICount++;
+                }
+                else
+                {
+                    eICount = 0;
+                }
+
+                if (eICount > maxNumOfSameElementsInRow)
+                {
+                    i--;
+                    continue;
+                }
+                else
+                {
+                    yield return elements.ElementAt(eI);
+                    lastI = eI;
+                }
+            }
         }
 
         /// <summary>

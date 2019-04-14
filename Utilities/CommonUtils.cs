@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -57,6 +58,21 @@ namespace Utilities
             catch
             {
                 result = default(T);
+                return false;
+            }
+        }
+        public static bool Try<T>(Func<T> action, out T result, out Exception exception)
+        {
+            try
+            {
+                result = action();
+                exception = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                result = default(T);
+                exception = ex;
                 return false;
             }
         }
@@ -157,6 +173,70 @@ namespace Utilities
 
         #endregion
 
+        public static T ExecuteOrLoad<T>(Func<T> method, string fileRoot, string fileName, int version)
+        {
+            return ExecuteOrLoad(method, Path.Combine(fileRoot, fileName), version);
+        }
+        public static T ExecuteOrLoad<T>(Func<T> method, string filePath, int version)
+        {
+            if (File.Exists(filePath))
+            {
+                var previousResult = File.Open(filePath, FileMode.Open)
+                                         .Deserialize<(int Version, T MethodResult)>();
+                if (previousResult.Version == version)
+                {
+                    return previousResult.MethodResult;
+                }
+            }
+
+            var result = (Version: version, MethodResult: method());
+            result.Serialize().SaveToFile(filePath);
+
+            return result.MethodResult;
+        }
+
+        public static async Task LoopWhileTrueAsync(Func<bool> condition, int cycleDelay)
+        {
+            while (condition())
+            {
+                await Task.Delay(cycleDelay);
+            }
+        }
+        public static async Task LoopWhileTrueAsync(Func<bool> condition, int cycleDelay, SemaphoreSlim conditionLocker)
+        {
+            while (await checkCondition())
+            {
+                await Task.Delay(cycleDelay);
+            }
+
+            ////////////////////////////
+
+            async Task<bool> checkCondition()
+            {
+                await conditionLocker.WaitAsync();
+                try
+                {
+                    return condition();
+                }
+                finally
+                {
+                    conditionLocker.Release();
+                }
+            }
+        }
+        public static async Task<T> ExecuteSynchronouslyAsync<T>(Func<T> func, SemaphoreSlim funcLocker)
+        {
+            await funcLocker.WaitAsync();
+            try
+            {
+                return func();
+            }
+            finally
+            {
+                funcLocker.Release();
+            }
+        }
+
         /// <summary>
         /// Выполняет все <paramref name="actions"/> и выбрасывает <see cref="AggregateException"/> если хотябы один завершился с исключением
         /// </summary>
@@ -195,6 +275,25 @@ namespace Utilities
 
             throw new ArgumentOutOfRangeException();
         }
+
+        /// <summary>
+        /// Returns element from <paramref name="correspondingResults"/> which index coincides
+        /// with the index of single <c>true</c> value in <paramref name="cases"/> list.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="cases">Must have at least one <c>true</c> element</param>
+        /// <param name="correspondingResults"></param>
+        /// <returns></returns>
+        public static T Select<T>(IList<bool> cases, IList<T> correspondingResults)
+        {
+            if (cases.Count != correspondingResults.Count || cases.Where(b => b).Count() != 1)
+            {
+                throw new ArgumentException();
+            }
+
+            return correspondingResults[cases.Find(true).Index];
+        }
+
         public static int Classify<T>(T element, params T[] elements)
         {
             for (int i = 0; i < elements.Length; i++)

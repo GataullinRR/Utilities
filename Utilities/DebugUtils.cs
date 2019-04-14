@@ -22,5 +22,13 @@ namespace Utilities
             }
             catch { }
         }
+
+        public static void BreakIf(bool condition)
+        {
+            if (condition)
+            {
+                Break();
+            }
+        }
     }
 }

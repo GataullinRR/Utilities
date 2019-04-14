@@ -32,6 +32,149 @@ namespace Utilities.Extensions
 
         #region ##### IEnumerable #####
 
+        public static Enumerator<T> StartEnumeration<T>(this IEnumerable<T> sequence)
+        {
+            return new Enumerator<T>(sequence);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sequence"></param>
+        /// <returns>2D matrix with one column</returns>
+        public static T[,] To2DArray<T>(this IEnumerable<T> sequence)
+        {
+            return sequence.Select(v => (IEnumerable<T>)new[] { v }).To2DArray();
+        }
+        public static T[,] To2DArray<T>(this IEnumerable<IEnumerable<T>> sequence)
+        {
+            var jagged = sequence.ToJaggedArray();
+            var matrix2D = new T[jagged.Select(row => row.Count()).EmptyToNull()?.EnsureSame() ?? 0, jagged.Length];
+            for (int col = 0; col < matrix2D.GetColumnsLength(); col++)
+            {
+                for (int row = 0; row < matrix2D.GetRowsLength(); row++)
+                {
+                    matrix2D[col, row] = jagged[row][col];
+                }
+            }
+
+            return matrix2D;
+        }
+        public static T[][] ToJaggedArray<T>(this IEnumerable<IEnumerable<T>> sequence)
+        {
+            return sequence.Select(arr => arr.ToArray()).ToArray();
+        }
+
+        public static T EnsureSame<T>(this IEnumerable<T> sequence)
+        {
+            return sequence.Distinct().Single();
+        }
+        public static T EnsureSameOrDefault<T>(this IEnumerable<T> sequence, T defaultValue)
+        {
+            return sequence.Distinct().FirstOrDefault(defaultValue);
+        }
+
+        public static IOrderedEnumerable<T> OrderBy<T>(this IEnumerable<T> sequence)
+        {
+            return sequence.OrderBy(v => v);
+        }
+
+        public static bool CountNotLessOrEqual<T>(this IEnumerable<T> sequence, int count)
+        {
+            foreach (var item in sequence)
+            {
+                count--;
+                if (count == 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// If <paramref name="sequence"/> is in memory collection (like List or Array), method will return
+        /// <paramref name="sequence"/>. Otherwise <paramref name="sequence"/> will be wrapped to 
+        /// <see cref="CachedEnumerable{T}"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sequence"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> MakeCached<T>(this IEnumerable<T> sequence)
+        {
+            return (sequence is IList<T> || sequence is IReadOnlyList<T>) 
+                ? sequence 
+                : new CachedEnumerable<T>(sequence);
+        }
+
+        public static IReadOnlyList<T> ToReadonlyList<T>(this IEnumerable<T> sequence)
+        {
+            return sequence.ToList().AsReadOnly();
+        }
+
+        /// <summary>
+        /// If <paramref name="sequence"/>.Count() % <paramref name="numOfElementsOnGroup"/> != 0 
+        /// last elements will be skipped
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sequence"></param>
+        /// <param name="numOfElementsOnGroup"></param>
+        /// <returns></returns>
+        public static IEnumerable<IEnumerable<T>> GroupBy<T>(this IEnumerable<T> sequence, int numOfElementsOnGroup)
+        {
+            var group = new T[numOfElementsOnGroup];
+            int i = 0;
+            foreach (var items in sequence)
+            {
+                group[i++] = items;
+
+                if (i == numOfElementsOnGroup)
+                {
+                    yield return group;
+                    group = new T[numOfElementsOnGroup];
+                    i = 0;
+                }
+            }
+        }
+        public static IEnumerable<IEnumerable<T>> GroupBy<T>(this IEnumerable<T> sequence, IEnumerable<T> startOfGroupMarker)
+        {
+            sequence = sequence.MakeCached();
+            startOfGroupMarker = startOfGroupMarker.MakeCached();
+            var groupStarts = new DisplaceCollection<int>(2);
+            var end = sequence.Count() - startOfGroupMarker.Count();
+            for (int i = 0; i <= end; i++)
+            {
+                var found = true;
+                for (int k = 0; k < startOfGroupMarker.Count(); k++)
+                {
+                    if (!sequence.ElementAt(i + k).Equals(startOfGroupMarker.ElementAt(k)))
+                    {
+                        found = false;
+                    }
+                }
+
+                if (found)
+                {
+                    if (found)
+                    {
+                        groupStarts.Add(i);
+                    }
+
+                    if (groupStarts.Count == 2)
+                    {
+                        yield return sequence.GetRangeSafe(groupStarts[0], groupStarts[1] - groupStarts[0]);
+                    }
+                }
+            }
+            groupStarts.Add(sequence.Count());
+            if (groupStarts.Count == 2)
+            {
+                yield return sequence.GetRangeSafe(groupStarts[0], groupStarts[1] - groupStarts[0]);
+            }
+        }
+
         public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> sequence)
         {
             foreach (var items in sequence)
@@ -41,6 +184,16 @@ namespace Utilities.Extensions
                     yield return item;
                 }
             }
+        }
+
+        public static T LastItem<T>(this IEnumerable<T> sequence)
+        {
+            if (sequence.IsEmpty())
+            {
+                throw new ArgumentOutOfRangeException("There is no last element. The sequence is empty.");
+            }
+
+            return sequence.TakeLast(1).Single();
         }
 
         public static T FirstItem<T>(this IEnumerable<T> sequence)
@@ -108,9 +261,32 @@ namespace Utilities.Extensions
             return new List<T>(array);
         }
 
-        public static List<T> GetRange<T>(this IEnumerable<T> sequence, int from, int count)
+        /// <summary>
+        /// The length of returned sequence can be less than <paramref name="count"/>.
+        /// Uses optimization for <see cref="IList{T}"/>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sequence"></param>
+        /// <param name="from"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> GetRangeSafe<T>(this IEnumerable<T> sequence, int from, int count)
         {
-            return new List<T>(sequence.Skip(from).Take(count));
+            if (sequence is IList<T> asIList)
+            {
+                var end = Math.Min(asIList.Count, from + count);
+                for (int i = from; i < end; i++)
+                {
+                    yield return asIList[i];
+                }
+            }
+            else
+            {
+                foreach (var item in sequence.Skip(from).Take(count))
+                {
+                    yield return item;
+                } 
+            }
         }
         public static List<T> GetRangeTill<T>(this IEnumerable<T> sequence, int from, int to)
         {
@@ -120,6 +296,29 @@ namespace Utilities.Extensions
             }
 
             return new List<T>(sequence.Skip(from).Take(to - from));
+        }
+        public static IEnumerable<T> GetRange<T>(this IEnumerable<T> sequence, int from, int count)
+        {
+            if (sequence is IList<T> asIList)
+            {
+                for (int i = from; i < from + count; i++)
+                {
+                    yield return asIList[i];
+                }
+            }
+            else
+            {
+                foreach (var item in sequence.Skip(from).Take(count))
+                {
+                    yield return item;
+                    count--;
+                }
+
+                if (count != 0)
+                {
+                    throw new IndexOutOfRangeException($"{count} elements were missed from the sequence");
+                }
+            }
         }
 
         #endregion
@@ -142,6 +341,10 @@ namespace Utilities.Extensions
             values.ForEach((v, i) => sb.AppendFormat("{0}{1}", v, splitter));
 
             return sb.ToString();
+        }
+        public static string AsString<T>(this IEnumerable<T> values, char splitter)
+        {
+            return values.AsString(splitter.ToString());
         }
 
         public static string AsMultilineString<T>(this IEnumerable<T> values)
@@ -207,6 +410,32 @@ namespace Utilities.Extensions
         //    }
         //}
 
+        public static IEnumerable<T> Concat<T>(this IEnumerable<T> sequence, T value)
+        {
+            return sequence.Concat(new T[] { value });
+        }
+
+        public static IEnumerable<FindResult<T>> FindAllMismatches<T>(this IEnumerable<T> sequence1, IEnumerable<T> sequence2)
+        {
+            sequence1 = sequence1.MakeCached();
+            sequence2 = sequence2.MakeCached();
+
+            if (sequence1.Count() != sequence2.Count())
+            {
+                throw new ArgumentException("Sequences must have same size");
+            }
+
+            for (int i = 0; i < sequence1.Count(); i++)
+            {
+                var e1 = sequence1.ElementAt(i);
+                var e2 = sequence2.ElementAt(i);
+                if (!Equals(e1, e2))
+                {
+                    yield return new FindResult<T>(i, e1);
+                }
+            }
+        }
+
         public static FindResult<T> First<T>(this IEnumerable<T> sequence, Func<T, int, bool> predicate)
         {
             var i = 0;
@@ -227,6 +456,35 @@ namespace Utilities.Extensions
             return sequence.IsEmpty()
                 ? null
                 : sequence;
+        }
+
+        /// <summary>
+        /// Doesn't throw an exception if 
+        /// <paramref name="sequence"/>.Count() < <paramref name="count"/> when <paramref name="strictCount"/> is False
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sequence"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> TakeFromEnd<T>(this IEnumerable<T> sequence, int count, bool strictCount = false)
+        {
+            var buffer = new DisplaceCollection<T>(count);
+            foreach (var item in sequence)
+            {
+                buffer.Add(item);
+            }
+
+            if (strictCount && buffer.Count != count)
+            {
+                throw new ArgumentException("There are no enough elements in the sequence");
+            }
+            else
+            {
+                for (int i = 0; i < buffer.Count; i++)
+                {
+                    yield return buffer[i];
+                }
+            }
         }
 
         /// <summary>
@@ -524,6 +782,17 @@ namespace Utilities.Extensions
             }
         }
 
+        public static FindResult<T> FindLast<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+        {
+            return source
+                .Select((v, i) => new { I = i, V = v })
+                .Reverse()
+                .Where(v => predicate(v.V))
+                .Select(v => new FindResult<T>(v.I, v.V))
+                .Concat(new FindResult<T>())
+                .FirstItem();
+        }
+
         #endregion
 
         public static IEnumerable<double> NaNToZero(this IEnumerable<double> numbers)
@@ -570,6 +839,17 @@ namespace Utilities.Extensions
             return values.Select(v => -v);
         }
 
+        public static double Mul(this IEnumerable<double> a1)
+        {
+            var acc = 1D; 
+            foreach (var item in a1)
+            {
+                acc *= item;
+            }
+
+            return acc;
+        }
+
         #region ##### Primitives de/serialization #####
 
         public static List<byte> Serialize(this IEnumerable<int> values)
@@ -601,13 +881,6 @@ namespace Utilities.Extensions
             }
 
             return serialized;
-        }
-
-        public static List<T> Deserialize<T>(this IEnumerable<byte> values)
-            where T : struct
-
-        {
-            return null;
         }
 
         #endregion
@@ -732,6 +1005,104 @@ namespace Utilities.Extensions
             }
         }
 
+        /// <summary>
+        /// Uses <see cref="Global.Random"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        public static IList<T> Shuffle<T>(this IList<T> list)
+        {
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = Global.Random.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+
+            return list;
+        }
+
+        public static void RemoveRange<T>(this IList<T> collection, int index, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                collection.RemoveAt(index);
+            }
+        }
+        public static void RemoveTill<T>(this IList<T> collection, int index)
+        {
+            for (int i = 0; i < index; i++)
+            {
+                collection.RemoveAt(0);
+            }
+        }
+        public static void RemoveFrom<T>(this IList<T> collection, int index)
+        {
+            var count = collection.Count - index;
+            for (int i = 0; i < count; i++)
+            {
+                collection.RemoveAt(index);
+            }
+
+            if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        //public static IEnumerable<object> AsEnumerable(this IList array)
+        //{
+        //    foreach (var item in array)
+        //    {
+        //        yield return item;
+        //    }
+        //}
+
+        /// <summary>
+        /// Returns randomly ordered <paramref name="array"/> without making changes to it.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="array"></param>
+        /// <param name="random"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> Shake<T>(this IList<T> array, Random random)
+        {
+            var indexes = random.NextUnique(0, array.Count, array.Count);
+            foreach (var index in indexes)
+            {
+                yield return array[index];
+            }
+        }
+
+        /// <summary>
+        /// Returns randomly ordered <paramref name="array"/> without making changes to it.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="array"></param>
+        /// <param name="random"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> Shake<T>(this IEnumerable<T> array, Random random)
+        {
+            var cachedArray = array.MakeCached();
+            var indexes = random.NextUnique(0, cachedArray.Count(), cachedArray.Count());
+            foreach (var index in indexes)
+            {
+                yield return cachedArray.ElementAt(index);
+            }
+        }
+
+        public static void RemoveLast<T>(this IList<T> array)
+        {
+            array.RemoveAt(array.Count - 1);
+        }
+        public static void RemoveFirst<T>(this IList<T> array)
+        {
+            array.RemoveAt(0);
+        }
+
         public static IList<TElement> SetAllExept<TElement>(this IList<TElement> array, TElement value, params TElement[] exeptValues)
         {
             for (int i = 0; i < array.Count; i++)
@@ -792,6 +1163,13 @@ namespace Utilities.Extensions
             return collection.MoveSelf(count);
         }
 
+        /// <summary>
+        /// Performs cyclic shift, so size keeps constant
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
         public static IList<T> MoveLeftSelf<T>(this IList<T> collection, int count)
         {
             if (count < 0)
@@ -909,6 +1287,23 @@ namespace Utilities.Extensions
             return array.Count == 0 ? defaultValue : array[array.Count - 1];
         }
 
+        public static IList<T> Set<T>(this IList<T> array, IEnumerable<T> values, IEnumerable<int> indexes)
+        {
+            values = values is IList<T> ? values : values.ToArray();
+            indexes = indexes is IList<int> ? indexes : indexes.ToArray();
+            if (values.Count() != indexes.Count())
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            var iValue = 0;
+            foreach (var i in indexes)
+            {
+                array[i] = values.ElementAt(iValue++);
+            }
+
+            return array;
+        }
         public static IList<T> Set<T>(this IList<T> array, T value, int startIndex, int endIndex)
         {
             var indexes = ArrayUtils.CreateListByRange(startIndex, 1, endIndex - startIndex);
@@ -1378,6 +1773,13 @@ namespace Utilities.Extensions
 
         #region ##### Array #####
 
+        /// <summary>
+        /// Returns all of the elements by enumerating them from left top corner by utilizing 'Z' pattern.
+        /// It is supposed that array is indexed by[row, column].
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="array2d"></param>
+        /// <returns></returns>
         public static IEnumerable<T> Enumerate<T>(this T[,] array2d)
         {
             for (int row = 0; row < array2d.GetLength(0); row++)
@@ -1387,6 +1789,65 @@ namespace Utilities.Extensions
                     yield return array2d[row, column];
                 }
             }
+        }
+
+        public static T[][] ToJagged<T>(this T[,] array2d)
+        {
+            var jagged = new T[array2d.GetRowsLength()][];
+            for (int rowI = 0; rowI < array2d.GetRowsLength(); rowI++)
+            {
+                var row = new T[array2d.GetColumnsLength()];
+                for (int columnI = 0; columnI < array2d.GetColumnsLength(); columnI++)
+                {
+                    row[columnI] = array2d[rowI, columnI];
+                }
+
+                jagged[rowI] = row;
+            }
+
+            return jagged;
+        }
+        public static T[,] ToMatrix<T>(this IEnumerable<IEnumerable<T>> matrix)
+        {
+            var matrixAsArray = matrix.Select(r => r.ToArray()).ToArray();
+            var isMatrix = matrixAsArray.Select(r => r.Length).Distinct().Count() <= 1;
+            if (!isMatrix)
+            {
+                throw new ArgumentException("All rows must have the same length");
+            }
+
+            var matrix2d = new T[matrixAsArray.Length, matrixAsArray?.FirstElementOrDefault()?.Length ?? 0];
+            for (int rowI = 0; rowI < matrix2d.GetRowsLength(); rowI++)
+            {
+                for (int columnI = 0; columnI < matrix2d.GetColumnsLength(); columnI++)
+                {
+                    matrix2d[rowI, columnI] = matrixAsArray[rowI][columnI];
+                }
+            }
+
+            return matrix2d;
+        }
+
+        public static int GetColumnsLength<T>(this T[,] array2d)
+        {
+            //return array2d.GetLength(1);
+            return array2d.GetLength(0);
+        }
+        public static int GetRowsLength<T>(this T[,] array2d)
+        {
+            //return array2d.GetLength(0);
+            return array2d.GetLength(1);
+        }
+
+        /// <summary>
+        /// Just casts to IList
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static IList<T> AsIList<T>(this T[] array)
+        {
+            return array;
         }
 
         public static ReadOnlyCollection<T> AsReadOnly<T>(this T[] array)
@@ -1401,6 +1862,11 @@ namespace Utilities.Extensions
         public static IEnumerable<T> ToEnumerable<T>(this List<T> list)
         {
             return list;
+        }
+
+        public static IList<T> AsIList<T>(this List<T> array)
+        {
+            return array;
         }
 
         #endregion

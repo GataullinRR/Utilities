@@ -21,6 +21,19 @@ namespace Utilities.Types
             ? (_stopwatch.Elapsed.TotalMilliseconds - _timeout).ToInt32() 
             : 0;
 
+        /// <summary>
+        /// Throws if timeout has occurred.
+        /// </summary>
+        public IDisposable PauseHolder
+        {
+            get
+            {
+                ThrowIfTimeout();
+                _stopwatch.Stop();
+                return new DisposingAction(() => _stopwatch.Start());
+            }
+        }
+
         public Timeouter(int timeout)
         {
             _timeout = timeout;

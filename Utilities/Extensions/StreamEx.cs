@@ -421,7 +421,7 @@ namespace Utilities.Extensions
             do
             {
                 bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                result.AddRange(buffer.GetRange(0, bytesRead));
+                result.AddRange(buffer.GetRangeSafe(0, bytesRead));
             }
             while (bytesRead == buffer.Length);
 
@@ -441,5 +441,24 @@ namespace Utilities.Extensions
         }
 
         #endregion
+
+        #region ##### FileStream #####
+
+        /// <summary>
+        /// Enumerates from <see cref="Stream.Position"/> to <see cref="Stream.Length"/>.
+        /// Advances stream position!
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static IEnumerable<byte> EnumerateTillEnd(this FileStream stream)
+        {
+            for (long i = stream.Position; i < stream.Length; i++)
+            {
+                yield return (byte)stream.ReadByte();
+            }
+        }
+
+        #endregion
+
     }
 }

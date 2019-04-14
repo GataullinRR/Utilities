@@ -59,7 +59,7 @@ namespace Utilities.Extensions.Tests
 
         void testFind(List<byte> what, params int[] expected)
         {
-            var positions = _source.FindAll(what);
+            var positions = _source.FindAllIndexes(what);
             CollectionAssert.AreEqual(expected, positions);
         }
 
@@ -116,6 +116,72 @@ namespace Utilities.Extensions.Tests
             var expected = new int[] { 5 };
 
             TestingUtils.AreEqual(Assert.IsTrue, expected, actual);
+        }
+
+        [Test()]
+        public void GroupBy_CommonCase()
+        {
+            var actual = new[] { 1, 2, 3, 4, 5, 6 }.GroupBy(3);
+            var expected = new[] { new[] { 1, 2, 3 }, new[] { 4, 5, 6 } };
+
+            Assert.AreEqual(expected, actual);
+        }
+        [Test()]
+        public void GroupBy_WrongSize1()
+        {
+            var actual = new[] { 1, 2, 3, 4, 5, 6 }.GroupBy(4);
+            var expected = new[] { new[] { 1, 2, 3, 4 } };
+
+            Assert.AreEqual(expected, actual);
+        }
+        [Test()]
+        public void GroupBy_WrongSize2()
+        {
+            var actual = new int[] { 1, 2, 3, 4, 5, 6 }.GroupBy(7);
+            var expected = new int[][] { };
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test()]
+        public void GroupBy_WithStartOfGroupMarker()
+        {
+            var actual = "123A:4567A:89A:".GroupBy("A").Select(g => g.AsString()).ToArray();
+            var expected = new[] { "A:4567", "A:89", "A:" };
+
+            Assert.AreEqual(expected, actual);
+        }
+        [Test()]
+        public void GroupBy_WithStartOfGroupMarker_OneGroup()
+        {
+            var actual = "123A:4567".GroupBy("A").Select(g => g.AsString()).ToArray();
+            var expected = new[] { "A:4567" };
+
+            Assert.AreEqual(expected, actual);
+        }
+        [Test()]
+        public void GroupBy_WithLongStartOfGroupMarker()
+        {
+            var actual = "123A:4567A:89A:".GroupBy("A:").Select(g => g.AsString()).ToArray();
+            var expected = new[] { "A:4567", "A:89", "A:" };
+
+            Assert.AreEqual(expected, actual);
+        }
+        [Test()]
+        public void GroupBy_WithStartOfGroupMarker_NoGroups()
+        {
+            var actual = "123A:4567A:89A:".GroupBy("dsd").Select(g => g.AsString()).ToArray();
+            var expected = new string[] { };
+
+            Assert.AreEqual(expected, actual);
+        }
+        [Test()]
+        public void GroupBy_WithStartOfGroupMarker_EmptySequence()
+        {
+            var actual = "".GroupBy("dsd").Select(g => g.AsString()).ToArray();
+            var expected = new string[] { };
+
+            Assert.AreEqual(expected, actual);
         }
     }
 }

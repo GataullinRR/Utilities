@@ -98,11 +98,47 @@ namespace Utilities.Extensions
         //        TaskContinuationOptions.OnlyOnCanceled);
         //}
 
-        public static async Task<IDisposable> AcquireAsync<T>
+        public static IDisposable Acquire(this SemaphoreSlim semaphore)
+        {
+            return semaphore.Acquire(CancellationToken.None);
+        }
+        public static IDisposable Acquire(this SemaphoreSlim semaphore, CancellationToken cancellation)
+        {
+            semaphore.Wait(cancellation);
+            return new DisposingAction(() => semaphore.Release());
+        }
+        public static async Task<IDisposable> AcquireAsync
             (this SemaphoreSlim semaphore, CancellationToken cancellation)
         {
             await semaphore.WaitAsync(cancellation);
             return new DisposingAction(() => semaphore.Release());
+        }
+        public static async Task<IDisposable> AcquireAsync
+            (this SemaphoreSlim semaphore)
+        {
+            return await semaphore.AcquireAsync(CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Makes use of <see cref="Task.WhenAll"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tasks"></param>
+        /// <returns></returns>
+        public static async Task WhenAll(this IEnumerable<Task> tasks)
+        {
+            await Task.WhenAll(tasks);
+        }
+
+        /// <summary>
+        /// Makes use of <see cref="Task.WaitAll"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tasks"></param>
+        /// <returns></returns>
+        public static void WaitAll(this IEnumerable<Task> tasks)
+        {
+            Task.WaitAll(tasks.ToArray());
         }
     }
 }

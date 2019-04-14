@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,6 +27,15 @@ namespace Utilities.Types
                 _isDisposed = true;
                 _disposed = null;
             }
+        }
+    }
+
+    public class FlagInverseDisposingAction : DisposingAction
+    {
+        public FlagInverseDisposingAction(bool initialValue, SetRef<bool> flag)
+            : base(() => flag.Value = !initialValue)
+        {
+            flag.Value = initialValue;
         }
     }
 }

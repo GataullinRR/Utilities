@@ -40,6 +40,11 @@ namespace Utilities.Types
             Environment.FailFast(msg, ex);
         }
 
+        //public static void ReportWarning(string msg)
+        //{
+        //    MessageBox.Show(msg, "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //}
+
         public static void ReportError(string msg)
         {
             ReportError(msg, null);

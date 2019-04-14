@@ -37,37 +37,6 @@ namespace Utilities
             }
         }
 
-        public static IEnumerable<T> ConcatSequences<T>(params IEnumerable<T>[] arrays)
-        {
-            return ConcatAllSequences(arrays.AsEnumerable());
-
-            //IEnumerable<T> result = Enumerable.Empty<T>();
-            //for (int i = 0; i < arrays.Length; i++)
-            //{
-            //    result = result.Concat(arrays[i]);
-            //}
-
-            //return result;
-        }
-        public static IEnumerable<T> ConcatAllSequences<T>(IEnumerable<IEnumerable<T>> arrays)
-        {
-            foreach (var array in arrays)
-            {
-                foreach (var item in array)
-                {
-                    yield return item;
-                }
-            }
-
-            //IEnumerable<T> result = Enumerable.Empty<T>();
-            //foreach (var array in arrays)
-            //{
-            //    result = result.Concat(array);
-            //}
-
-            //return result;
-        }
-
         public static CompareResult Compare<T>
             (IEnumerable<T> array1, IEnumerable<T> array2, Func<T, T, bool> equalityComparer)
         {
@@ -150,6 +119,36 @@ namespace Utilities
             string commentary = str1.Length != str2.Length ? 
                 "str1.Length != str2.Length ({0}!={1})".Format(str1.Length, str2.Length) : "";
             return new CompareResult(isMatch, mismatchPositions, mismatchInfo, commentary);
+        }
+
+        public static IEnumerable<T> ConcatSequences<T>(params IEnumerable<T>[] arrays)
+        {
+            return ConcatAllSequences((IEnumerable<IEnumerable<T>>)arrays);
+        }
+        public static IEnumerable<T> ConcatAllSequences<T>(IEnumerable<IEnumerable<T>> arrays)
+        {
+            foreach (var array in arrays)
+            {
+                foreach (var item in array)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        public static IEnumerable<double> Range(double from, double step, double to)
+        {
+            for (double v = from; v < to; v += step)
+            {
+                yield return v;
+            }
+        }
+        public static IEnumerable<int> Range(int from, int step, int to)
+        {
+            for (int v = from; v < to; v += step)
+            {
+                yield return v;
+            }
         }
 
         #endregion

@@ -7,7 +7,7 @@ namespace Utilities.Extensions
 {
     public class FindResult<T>
     {
-        readonly T _Value;
+        readonly Lazy<T> _Value = new Lazy<T>();
 
         public bool Found { get; }
         public int Index { get; }
@@ -16,7 +16,7 @@ namespace Utilities.Extensions
             get
             {
                 return Found 
-                    ? _Value 
+                    ? _Value.Value 
                     : throw new InvalidOperationException("The value has not been found.");
             }
         }
@@ -25,11 +25,14 @@ namespace Utilities.Extensions
             get
             {
                 return Found
-                    ? _Value
+                    ? _Value.Value
                     : default;
             }
         }
 
+        /// <summary>
+        /// Nothing is found
+        /// </summary>
         public FindResult()
         {
             Index = -1;
@@ -39,7 +42,7 @@ namespace Utilities.Extensions
         {
             checkIndex(index);
             Index = index;
-            _Value = value;
+            _Value = new Lazy<T>(() => value);
             Found = true;
         }
         /// <summary>
@@ -53,8 +56,15 @@ namespace Utilities.Extensions
         {
             checkIndex(index);
             Index = index;
-            _Value = valueSource.First((v, i) => i == Index).Value;
+            _Value = new Lazy<T>(() => valueSource.First((v, i) => i == Index).Value);
             Found = true;
+        }
+
+        FindResult(int index, T value, bool found)
+        {
+            Index = index;
+            _Value = new Lazy<T>(() => value);
+            Found = found;
         }
 
         void checkIndex(int index)
@@ -63,6 +73,12 @@ namespace Utilities.Extensions
             {
                 throw new ArgumentOutOfRangeException("Index must be in range from 0 to Inf");
             }
+        }
+
+        public FindResult<TResult> Cast<TResult>(Func<T, TResult> valueCaster)
+        {
+            
+            return new FindResult<TResult>(Index, valueCaster(_Value.Value), Found);
         }
     }
 }
