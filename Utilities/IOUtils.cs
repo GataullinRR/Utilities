@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.Windows.Forms;
 using Utilities;
@@ -25,21 +26,27 @@ namespace Utilities
             dialog.AddExtension = true;
             dialog.RestoreDirectory = true;
 
-            return dialog.ShowDialog() == DialogResult.OK ? dialog.FileName : null;
+            return dialog.ShowDialog() == DialogResult.OK 
+                ? dialog.FileName 
+                : null;
         }
 
         public static string RequestDirectoryOpenPath()
         {
             var dialog = new FolderBrowserDialog();
 
-            return dialog.ShowDialog() == DialogResult.OK ? dialog.SelectedPath : null;
+            return dialog.ShowDialog() == DialogResult.OK 
+                ? dialog.SelectedPath 
+                : null;
         }
 
         public static string RequestDirectorySavingPath()
         {
             var dialog = new FolderBrowserDialog();
 
-            return dialog.ShowDialog() == DialogResult.OK ? dialog.SelectedPath : null;
+            return dialog.ShowDialog() == DialogResult.OK 
+                ? dialog.SelectedPath 
+                : null;
         }
 
         /// <summary>
@@ -54,7 +61,18 @@ namespace Utilities
             dialog.AddExtension = true;
             dialog.RestoreDirectory = true;
 
-            return dialog.ShowDialog() == DialogResult.OK ? dialog.FileName : null;
+            return dialog.ShowDialog() == DialogResult.OK 
+                ? dialog.FileName 
+                : null;
+        }
+
+        public static string RequestFolderPath()
+        {
+            var dialog = new FolderBrowserDialog();
+
+            return dialog.ShowDialog() == DialogResult.OK 
+                ? dialog.SelectedPath 
+                : null;
         }
 
         /// <summary>
@@ -74,8 +92,16 @@ namespace Utilities
         /// <param name="filePath"></param>
         public static FileStream CreateFile(string filePath)
         {
+            return CreateFile(filePath, FileAccess.ReadWrite, FileShare.None);
+            //CreateDirectoryIfNotExist(Path.GetDirectoryName(filePath));
+            //return File.Open(filePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+            //return File.Create(filePath).FileS;
+        }
+
+        public static FileStream CreateFile(string filePath, FileAccess fileAccess, FileShare fileShare)
+        {
             CreateDirectoryIfNotExist(Path.GetDirectoryName(filePath));
-            return File.Create(filePath);
+            return File.Open(filePath, FileMode.Create, fileAccess, fileShare);
         }
 
         /// <summary>
@@ -129,6 +155,13 @@ namespace Utilities
             }
         }
 
+        public static void DeleteFile(string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+        }
         public static bool TryDeleteFile(string filePath)
         {
             if (!File.Exists(filePath))
@@ -152,6 +185,14 @@ namespace Utilities
             }
 
             return isOk;
+        }
+        public static void RecreateDirectory(string dirPath)
+        {
+            if (Directory.Exists(dirPath))
+            {
+                Directory.Delete(dirPath, true);
+            }
+            Directory.CreateDirectory(dirPath);
         }
 
         public static bool TryCreateDirectory(string dirPath)

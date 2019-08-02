@@ -17,6 +17,17 @@ namespace Utilities
     {
         #region ##### Try #####
 
+        public static async Task<(bool Ok, T Result)> TryAsync<T>(Func<Task<T>> funkAsync)
+        {
+            try
+            {
+                return (true, await funkAsync());
+            }
+            catch
+            {
+                return (false, default);
+            }
+        }
         public static async Task<bool> TryAsync(Func<Task> action)
         {
             try
@@ -77,6 +88,12 @@ namespace Utilities
             }
         }
 
+        public static async Task<T> TryOrDefaultAsync<T>(Func<T> func)
+        {
+            await ThreadingUtils.ContinueAtThreadPull();
+
+            return TryOrDefault(func, default(T));
+        }
         public static T TryOrDefault<T>(Func<T> func)
         {
             return TryOrDefault(func, default(T));
@@ -200,6 +217,14 @@ namespace Utilities
             while (condition())
             {
                 await Task.Delay(cycleDelay);
+            }
+        }
+        public static async Task LoopWhileTrueAsync(Func<bool> condition, int cycleDelay, int timeout)
+        {
+            var token = new CancellationTokenSource(timeout).Token;
+            while (condition())
+            {
+                await Task.Delay(cycleDelay, token);
             }
         }
         public static async Task LoopWhileTrueAsync(Func<bool> condition, int cycleDelay, SemaphoreSlim conditionLocker)

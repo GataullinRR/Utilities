@@ -70,6 +70,7 @@
     <Compile Include="InteropUtils_Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Types\EnhancedEnumerator_Tests.cs" />
+    <Compile Include="Types\Enumerator_Tests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Utilities\Utilities.csproj">

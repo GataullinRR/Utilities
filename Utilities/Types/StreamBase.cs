@@ -14,8 +14,8 @@ namespace Utilities.Types
         readonly Stream _baseStream;
 
         public override bool CanRead => _baseStream.CanRead;
-        public override bool CanSeek => _baseStream.CanRead;
-        public override bool CanWrite => _baseStream.CanRead;
+        public override bool CanSeek => _baseStream.CanSeek;
+        public override bool CanWrite => _baseStream.CanWrite;
         public override long Length => _baseStream.Length;
         public override long Position
         {

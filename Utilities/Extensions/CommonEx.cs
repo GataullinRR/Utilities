@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -12,6 +13,46 @@ namespace Utilities.Extensions
 {
     public static class CommonEx
     {
+        public static IEnumerable<T> ToSequence<T>(this T value)
+        {
+            yield return value;
+        }
+
+        /// <summary>
+        /// Works only for Enums!
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <returns><see cref="null"/> if there is no description attribute</returns>
+        public static string GetEnumValueDescription<T>(this T value) 
+            where T : struct
+        {
+            var t = typeof(T);
+            if (t.IsEnum)
+            {
+                var memInfo = t.GetMember(value.ToString());
+                var attributes = memInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
+                return (attributes.SingleOrDefault() as DescriptionAttribute)?.Description;
+            }
+            else
+            {
+                throw new NotSupportedException("This method supposed to be used with Enums!");
+            }
+        }
+
+        public static IEnumerable<int> Range(this int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                yield return i;
+            }
+        }
+
+        public static bool NullToFalse(this object value)
+        {
+            return value != null;
+        }
+
         public static bool IsOneOf<T>(this T value, params T[] values)
         {
             foreach (T v in values)
@@ -83,6 +124,17 @@ namespace Utilities.Extensions
             var serializer = new BinaryFormatter();
 
             return (T)serializer.Deserialize(obj);
+        }
+
+        public static IEnumerable<T> Select<T>(this object obj, params (Func<object, bool> predicate, T result)[] conditions)
+        {
+            foreach (var c in conditions)
+            {
+                if(c.predicate(obj))
+                {
+                    yield return c.result;
+                }
+            }
         }
     }
 }

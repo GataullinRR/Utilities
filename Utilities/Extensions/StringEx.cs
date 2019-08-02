@@ -10,6 +10,17 @@ namespace Utilities.Extensions
 {
     public static class StringEx
     {
+        public static string Repeat(this string str, int numOfTimes)
+        {
+            var sb = new StringBuilder(str.Length * numOfTimes);
+            foreach (var i in numOfTimes.Range())
+            {
+                sb.Append(str);
+            }
+
+            return sb.ToString();
+        }
+
         public static string[] Split(this string str, string separator, bool removeEmptyEntries = true)
         {
             return str

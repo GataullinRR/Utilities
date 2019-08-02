@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Utilities;
 using Utilities.Types;
@@ -32,21 +33,54 @@ namespace Utilities.Extensions
 
         #region ##### IEnumerable #####
 
+        //public static IEnumerable<T> SkipNulls<T>(this IEnumerable<T> sequence)
+        //{
+        //    foreach (var item in sequence)
+        //    {
+        //        if (item != null)
+        //        {
+        //            yield return item;
+        //        }
+        //    }
+        //}
+
+        public static IEnumerable<T> SkipFirstItem<T>(this IEnumerable<T> sequence)
+        {
+            return sequence.Skip(1);
+        }
+        public static IEnumerable<T> SkipNulls<T>(this IEnumerable<T> sequence)
+        {
+            return sequence.Where(v => v != null);
+        }
+        //public static IEnumerable<T> SkipNulls<T>(this IEnumerable<Nullable<T>> sequence)
+        //    where T : 
+        //{
+        //    return sequence.Where(v => v != null);
+        //}
+
+        public static IEnumerable<object> ToGenericEnumerable(this IEnumerable sequence)
+        {
+            foreach (var item in sequence)
+            {
+                yield return item;
+            }
+        }
+
         public static Enumerator<T> StartEnumeration<T>(this IEnumerable<T> sequence)
         {
             return new Enumerator<T>(sequence);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="sequence"></param>
-        /// <returns>2D matrix with one column</returns>
-        public static T[,] To2DArray<T>(this IEnumerable<T> sequence)
-        {
-            return sequence.Select(v => (IEnumerable<T>)new[] { v }).To2DArray();
-        }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        ///// <param name="sequence"></param>
+        ///// <returns>2D matrix with one column</returns>
+        //public static T[,] To2DArray<T>(this IEnumerable<T> sequence)
+        //{
+        //    return sequence.Select(v => (IEnumerable<T>)new[] { v }).To2DArray();
+        //}
         public static T[,] To2DArray<T>(this IEnumerable<IEnumerable<T>> sequence)
         {
             var jagged = sequence.ToJaggedArray();
@@ -115,25 +149,47 @@ namespace Utilities.Extensions
         }
 
         /// <summary>
-        /// If <paramref name="sequence"/>.Count() % <paramref name="numOfElementsOnGroup"/> != 0 
-        /// last elements will be skipped
+        /// If there are no enough elements in <see cref="sequence"/> exception will be thrown. 
+        /// Extra elements will be ignored.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="sequence"></param>
         /// <param name="numOfElementsOnGroup"></param>
         /// <returns></returns>
-        public static IEnumerable<IEnumerable<T>> GroupBy<T>(this IEnumerable<T> sequence, int numOfElementsOnGroup)
+        public static IEnumerable<IEnumerable<T>> GroupBy<T>(this IEnumerable<T> sequence, IEnumerable<int> groupsSizes)
         {
-            var group = new T[numOfElementsOnGroup];
+            groupsSizes = groupsSizes.MakeCached();
+            var sequenceEnumerator = sequence.StartEnumeration();
+            var groupSizesEnumerator = groupsSizes.StartEnumeration();
+
+            foreach (var _ in groupsSizes.Count().Range())
+            {
+                var groupSize = groupSizesEnumerator.AdvanceOrThrow();
+                var group = sequenceEnumerator.AdvanceRangeOrThrow().Take(groupSize).ToArray();
+
+                yield return group;
+            }
+        }
+        /// <summary>
+        /// If <paramref name="sequence"/>.Count() % <paramref name="numOfElementsGroup"/> != 0 
+        /// last elements will be skipped
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sequence"></param>
+        /// <param name="numOfElementsGroup"></param>
+        /// <returns></returns>
+        public static IEnumerable<IEnumerable<T>> GroupBy<T>(this IEnumerable<T> sequence, int numOfElementsGroup)
+        {
+            var group = new T[numOfElementsGroup];
             int i = 0;
             foreach (var items in sequence)
             {
                 group[i++] = items;
 
-                if (i == numOfElementsOnGroup)
+                if (i == numOfElementsGroup)
                 {
                     yield return group;
-                    group = new T[numOfElementsOnGroup];
+                    group = new T[numOfElementsGroup];
                     i = 0;
                 }
             }
@@ -1023,6 +1079,14 @@ namespace Utilities.Extensions
             }
 
             return list;
+        }
+
+        public static async Task AddRangeAsync<T>(this IList<T> list, IEnumerable<T> items, SemaphoreSlim listLocker)
+        {
+            using (await listLocker.AcquireAsync())
+            {
+                list.AddRange(items);
+            }
         }
 
         public static void RemoveRange<T>(this IList<T> collection, int index, int count)

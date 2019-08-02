@@ -13,12 +13,12 @@ namespace Utilities.Extensions
     {
         const NumberStyles IntegerStyle = NumberStyles.Any ^ NumberStyles.AllowThousands;
 
-        public static sbyte? TryParseToSByteInvariant(this string str)
+        public static sbyte? TryParseToInt8Invariant(this string str)
         {
             var ok = sbyte.TryParse(str, IntegerStyle, CultureInfo.InvariantCulture, out sbyte parsed);
             return ok ? (sbyte?)parsed : null;
         }
-        public static byte? TryParseToByteInvariant(this string str)
+        public static byte? TryParseToUInt8Invariant(this string str)
         {
             var ok = byte.TryParse(str, IntegerStyle, CultureInfo.InvariantCulture, out byte parsed);
             return ok ? (byte?)parsed : null;
@@ -69,9 +69,9 @@ namespace Utilities.Extensions
         {
             return str.Select(ParseToInt32Invariant);
         }
-        public static IEnumerable<byte> ParseToByteInvariant(this IEnumerable<string> str)
+        public static IEnumerable<byte> ParseToUInt8Invariant(this IEnumerable<string> str)
         {
-            return str.Select((s) => ParseToByteInvariant(s));
+            return str.Select((s) => ParseToUInt8Invariant(s));
         }
         public static IEnumerable<double> ParseToDoubleInvariant(this IEnumerable<string> str)
         {
@@ -86,15 +86,39 @@ namespace Utilities.Extensions
         {
             return ushort.Parse(str, IntegerStyle, CultureInfo.InvariantCulture);
         }
+        public static short ParseToInt16Invariant(this string str)
+        {
+            return short.Parse(str, IntegerStyle, CultureInfo.InvariantCulture);
+        }
+        public static uint ParseToUInt32Invariant(this string str)
+        {
+            return uint.Parse(str, IntegerStyle, CultureInfo.InvariantCulture);
+        }
         public static int ParseToInt32Invariant(this string str)
         {
             return int.Parse(str, IntegerStyle, CultureInfo.InvariantCulture);
         }
-        public static byte ParseToByteInvariant(this string str)
+        public static ulong ParseToUInt64Invariant(this string str)
+        {
+            return ulong.Parse(str, IntegerStyle, CultureInfo.InvariantCulture);
+        }
+        public static long ParseToInt64Invariant(this string str)
+        {
+            return long.Parse(str, IntegerStyle, CultureInfo.InvariantCulture);
+        }
+        public static byte ParseToUInt8Invariant(this string str)
         {
             return byte.Parse(str, IntegerStyle, CultureInfo.InvariantCulture);
         }
-        public static byte ParseToByteInvariant(this string str, int @base)
+        public static sbyte ParseToInt8Invariant(this string str)
+        {
+            return sbyte.Parse(str, IntegerStyle, CultureInfo.InvariantCulture);
+        }
+        public static byte ParseToUInt8FromHexInvariant(this string str)
+        {
+            return Convert.ToByte(str, 16);
+        }
+        public static byte ParseToUInt8Invariant(this string str, int @base)
         {
             return Convert.ToByte(str, @base);
         }

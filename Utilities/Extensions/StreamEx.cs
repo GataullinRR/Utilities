@@ -30,6 +30,16 @@ namespace Utilities.Extensions
             return new MemoryStream(data.ToArray());
         }
 
+        public static StreamWriter ToStreamWriter(this Stream stream, Encoding encoding)
+        {
+            return new StreamWriter(stream, encoding);
+        }
+
+        public static BinaryWriter ToBinaryWriter(this Stream stream)
+        {
+            return new BinaryWriter(stream);
+        }
+
         #endregion
 
         #region ##### Stream #####
@@ -88,7 +98,13 @@ namespace Utilities.Extensions
             var asArray = buffer.ToArray();
             stream.Write(asArray, 0, asArray.Length);
         }
-
+        public static void WriteAndDispose(this Stream stream, IEnumerable<byte> buffer)
+        {
+            using (stream)
+            {
+                stream.Write(buffer);
+            }
+        }
 
         public static async Task WriteAsync(this Stream stream, IEnumerable<byte> buffer, int timeout)
         {
@@ -406,6 +422,14 @@ namespace Utilities.Extensions
             foreach (var line in lines)
             {
                 writer.WriteLine(line);
+            }
+        }
+
+        public static void WriteAndDispose(this StreamWriter writer, string text)
+        {
+            using (writer)
+            {
+                writer.Write(text);
             }
         }
 

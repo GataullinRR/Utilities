@@ -106,6 +106,14 @@ namespace Utilities.Extensions
             return negativeToZero ? (val < 0 ? 0 : (uint)val) : (uint)Math.Abs(val);
         }
 
+        public static long ToInt64(this decimal value) => Convert.ToInt64(value);
+        public static long ToInt64(this double value) => Convert.ToInt64(value);
+        public static long ToInt64(this float value) => Convert.ToInt64(value);
+        public static long ToInt64(this short value) => Convert.ToInt64(value);
+        public static long ToInt64(this char value) => Convert.ToInt64(value);
+        public static long ToInt64(this byte value) => Convert.ToInt64(value);
+        public static long ToInt64(this uint value) => Convert.ToInt64(value);
+
         public static UInt16 ToUInt16(this decimal value) => Convert.ToUInt16(value);
         public static UInt16 ToUInt16(this double value) => Convert.ToUInt16(value);
         public static UInt16 ToUInt16(this float value) => Convert.ToUInt16(value);
@@ -259,6 +267,10 @@ namespace Utilities.Extensions
         {
             return Math.Pow(val, power).ToInt32();
         }
+        public static long Pow(this long val, double power)
+        {
+            return Math.Pow(val, power).ToInt64();
+        }
         public static double Root(this double val, double power)
         {
             return Math.Pow(val, 1 / power);
@@ -362,6 +374,14 @@ namespace Utilities.Extensions
             return _bitReverseTable[current];
         }
 
+        public static byte BitLShift(this byte current, int shift)
+        {
+            return (byte)(current << shift);
+        }
+        public static byte BitRShift(this byte current, int shift)
+        {
+            return (byte)(current >> shift);
+        }
         public static byte BitXOR(this byte current, byte mask)
         {
             return (byte)(current ^ mask);

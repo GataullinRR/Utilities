@@ -158,10 +158,19 @@ namespace Utilities
         {
             return serializeAll(true, primitives);
         }
+        public static IEnumerable<byte> SerializeAll(bool isLittleEndian, params object[] primitives)
+        {
+            return serializeAll(true, isLittleEndian, primitives);
+        }
         static IEnumerable<byte> serializeAll(bool throwIfNotPrimitive, params object[] primitives)
         {
-            BinaryWriter writer = new BinaryWriter(new MemoryStream());
+            return serializeAll(throwIfNotPrimitive, BitConverter.IsLittleEndian, primitives);
+        }
+        static IEnumerable<byte> serializeAll(bool throwIfNotPrimitive, bool isLittleEndian, params object[] primitives)
+        {
+            var writer = new BinaryWriter(new MemoryStream());
             long lastPosition = 0;
+            var inverseByteOrder = isLittleEndian != BitConverter.IsLittleEndian;
 
             return serialize(primitives);
 
@@ -206,12 +215,23 @@ namespace Utilities
                         }
 
                         writer.Write(dValue);
-                        writer.BaseStream.Seek(lastPosition, SeekOrigin.Begin);
-                        for (long i = lastPosition; i < writer.BaseStream.Length; i++)
+                        var serialized = inverseByteOrder
+                            ? getBytes().Reverse()
+                            : getBytes();
+                        foreach (var b in serialized)
                         {
-                            yield return (byte)writer.BaseStream.ReadByte();
+                            yield return b;
                         }
-                        lastPosition = writer.BaseStream.Length;
+
+                        IEnumerable<byte> getBytes()
+                        {
+                            writer.BaseStream.Seek(lastPosition, SeekOrigin.Begin);
+                            for (long i = lastPosition; i < writer.BaseStream.Length; i++)
+                            {
+                                yield return (byte)writer.BaseStream.ReadByte();
+                            }
+                            lastPosition = writer.BaseStream.Length;
+                        }
                     }
                 }
             }

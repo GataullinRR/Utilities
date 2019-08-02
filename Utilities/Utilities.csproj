@@ -31,7 +31,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\..\..\UnityProjects\AI Racings\Assets\Plugins\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -83,6 +83,7 @@
     <Compile Include="Extensions\DTO\ReadExactInfo.cs" />
     <Compile Include="Extensions\DTO\Table.cs" />
     <Compile Include="Extensions\DynamicEx.cs" />
+    <Compile Include="Extensions\EnumEx.cs" />
     <Compile Include="Extensions\Exceptions\ReadExactZeroReceivedException.cs" />
     <Compile Include="Extensions\DTO\FindResult.cs" />
     <Compile Include="Extensions\MiscEx.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="Extensions\StringEx.cs" />
     <Compile Include="Types\Breaker.cs" />
     <Compile Include="Types\CachedEnumerable.cs" />
+    <Compile Include="Types\EmptyReadOnlyDictonary.cs" />
     <Compile Include="Types\DisplaceCollection.cs" />
     <Compile Include="Types\Disposable.cs" />
     <Compile Include="Types\DisposingActions.cs" />
@@ -140,11 +142,14 @@
     <Compile Include="Types\DPerformer.cs" />
     <Compile Include="Types\Enumerable.cs" />
     <Compile Include="Types\Enumerator.cs" />
+    <Compile Include="Types\ExceptionBuilder.cs" />
     <Compile Include="Types\Extensions\CounterEx.cs" />
+    <Compile Include="Types\FlagInverseDisposingAction.cs" />
     <Compile Include="Types\IComparerAction.cs" />
     <Compile Include="Types\IEqualityComparerAction.cs" />
     <Compile Include="Types\ListBase.cs" />
     <Compile Include="Types\Matlab\Class1.cs" />
+    <Compile Include="Types\Property.cs" />
     <Compile Include="Types\Reporter.cs" />
     <Compile Include="Types\GCPinner.cs" />
     <Compile Include="Types\ICloneable.cs" />
@@ -155,6 +160,7 @@
     <Compile Include="Types\OnePassSteram.cs" />
     <Compile Include="Types\ReadWriteIterator.cs" />
     <Compile Include="Types\Ref.cs" />
+    <Compile Include="Types\SmartInt.cs" />
     <Compile Include="Types\StateMachine.cs" />
     <Compile Include="Types\Exceptions\ArgumentUniformException.cs" />
     <Compile Include="Types\StepValidator.cs" />
@@ -170,6 +176,8 @@
     <Compile Include="Types\Transliterator.cs" />
     <Compile Include="Types\Exceptions\UniformException.cs" />
     <Compile Include="Types\Exceptions\OperationUniformException.cs" />
+    <Compile Include="Types\TypeBuilder.cs" />
+    <Compile Include="Types\ValueEventArgs.cs" />
     <Compile Include="WPFUtils.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -190,6 +198,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Misc\" />
+    <Folder Include="Types\Attributes\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

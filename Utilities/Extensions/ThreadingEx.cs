@@ -59,6 +59,29 @@ namespace Utilities.Extensions
             }
         }
 
+        public static async Task CatchAnyExeption(this Task continuation)
+        {
+            try
+            {
+                await continuation;
+            }
+            catch
+            {
+
+            }
+        }
+        public static async Task<T> CatchAnyExeptionOrDefault<T>(this Task<T> continuation)
+        {
+            try
+            {
+                return await continuation;
+            }
+            catch
+            {
+                return default;
+            }
+        }
+
         /// <summary>
         /// Ловит <see cref="OperationCanceledException"/> и <see cref="AggregateException"/> при условии, что
         /// все его <see cref="AggregateException.InnerExceptions"/> наследуются от 

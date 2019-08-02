@@ -15,6 +15,11 @@ namespace Utilities.Extensions
     {
         #region ##### IEnumerable #####
 
+        public static bool AllTrue(this IEnumerable<bool> sequence)
+        {
+            return sequence.All(v => v);
+        }
+
         /// <summary>
         /// Creates new or overwrites old
         /// </summary>
@@ -175,7 +180,7 @@ namespace Utilities.Extensions
         #endregion
 
         /// <summary>
-        /// Преобразует <paramref name="sequence"/> в строку
+        /// Just aggregates <paramref name="sequence"/>'s characters into string.
         /// </summary>
         /// <param name="sequence"></param>
         /// <returns></returns>

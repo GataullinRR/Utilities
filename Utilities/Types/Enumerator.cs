@@ -35,6 +35,11 @@ namespace Utilities.Types
                 yield return AdvanceOrThrow();
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">When there are no elements left</exception>
         public T AdvanceOrThrow()
         {
             var haveValue = MoveNext();
@@ -46,6 +51,11 @@ namespace Utilities.Types
             {
                 return Current;
             }
+        }
+
+        public T[] Pull(int count)
+        {
+            return AdvanceRangeOrThrow().Take(count).ToArray();
         }
 
         public void Dispose()

@@ -29,13 +29,4 @@ namespace Utilities.Types
             }
         }
     }
-
-    public class FlagInverseDisposingAction : DisposingAction
-    {
-        public FlagInverseDisposingAction(bool initialValue, SetRef<bool> flag)
-            : base(() => flag.Value = !initialValue)
-        {
-            flag.Value = initialValue;
-        }
-    }
 }

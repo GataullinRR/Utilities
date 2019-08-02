@@ -143,6 +143,13 @@ namespace Utilities
                 yield return v;
             }
         }
+        /// <summary>
+        /// [from; to)
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="step"></param>
+        /// <param name="to">Exclusive!</param>
+        /// <returns></returns>
         public static IEnumerable<int> Range(int from, int step, int to)
         {
             for (int v = from; v < to; v += step)
