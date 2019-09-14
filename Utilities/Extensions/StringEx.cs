@@ -46,6 +46,11 @@ namespace Utilities.Extensions
             return encoding.GetBytes(str);
         }
 
+        public static bool IsASCII(this string str)
+        {
+            return Encoding.UTF8.GetByteCount(str) == str.Length;
+        }
+
         /// <summary>
         /// Разворачивает объекты реализующие IEnumerable
         /// </summary>

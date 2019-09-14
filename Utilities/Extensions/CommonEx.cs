@@ -8,6 +8,7 @@ using System.Text;
 using Utilities;
 using Utilities.Extensions;
 using Utilities.Types;
+using System.Runtime.CompilerServices;
 
 namespace Utilities.Extensions
 {

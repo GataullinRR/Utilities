@@ -149,6 +149,7 @@
     <Compile Include="Types\IEqualityComparerAction.cs" />
     <Compile Include="Types\ListBase.cs" />
     <Compile Include="Types\Matlab\Class1.cs" />
+    <Compile Include="Types\PeriodDelay.cs" />
     <Compile Include="Types\Property.cs" />
     <Compile Include="Types\Reporter.cs" />
     <Compile Include="Types\GCPinner.cs" />
