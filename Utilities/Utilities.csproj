@@ -73,12 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArrayUtils.cs" />
-    <Compile Include="CharUtils.cs" />
-    <Compile Include="CommonInterfaces.cs" />
     <Compile Include="CommonUtils.cs" />
-    <Compile Include="ConvertUtils.cs" />
-    <Compile Include="DateTimeUtils.cs" />
-    <Compile Include="DebugUtils.cs" />
     <Compile Include="Extensions\Debugging\Dumping.cs" />
     <Compile Include="Extensions\DTO\ReadExactInfo.cs" />
     <Compile Include="Extensions\DTO\Table.cs" />
@@ -104,27 +99,18 @@
     <Compile Include="Extensions\ThrowEx.cs" />
     <Compile Include="Extensions\WPFEx.cs" />
     <Compile Include="IOUtils.cs" />
-    <Compile Include="MathUtils.cs" />
     <Compile Include="MiscUtils.cs" />
-    <Compile Include="ProfilingUtils.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="StreamUtils.cs" />
-    <Compile Include="TaskUtils.cs" />
-    <Compile Include="TestingUtils.cs" />
-    <Compile Include="ThreadingUtils.cs" />
-    <Compile Include="ThrowUtils.cs" />
     <Compile Include="EnumUtils.cs" />
     <Compile Include="Extensions\ArrayEx.cs" />
     <Compile Include="Extensions\BitConverterEx.cs" />
     <Compile Include="Extensions\CharEx.cs" />
     <Compile Include="Extensions\NumericEx.cs" />
     <Compile Include="Extensions\RandomEx.cs" />
-    <Compile Include="MatlabUtils.cs" />
-    <Compile Include="NumericUtils.cs" />
     <Compile Include="ParsingUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Extensions\StringEx.cs" />
@@ -200,6 +186,12 @@
   <ItemGroup>
     <Folder Include="Misc\" />
     <Folder Include="Types\Attributes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj">
+      <Project>{0d262076-5f0c-46e3-9633-b1e0bc32af6f}</Project>
+      <Name>UtilitiesStandard</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

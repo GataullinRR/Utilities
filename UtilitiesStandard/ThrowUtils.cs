@@ -133,13 +133,6 @@ namespace Utilities
             ThrowIf_ContainsDublicate(objs);
         }
 
-        //public static void ThrowIf_FileNotExist(params string[] paths)
-        //{
-        //    foreach (string path in paths)
-        //        if (!File.Exists(path))
-        //            throw new FileNotFoundException("File \"{0}\" not found".Format(path as object));
-        //}
-
         #endregion
 
         #region ##### NUMERIC THROW #####

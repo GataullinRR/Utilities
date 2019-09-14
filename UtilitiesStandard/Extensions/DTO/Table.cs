@@ -59,7 +59,7 @@ namespace Utilities.Extensions
                 {
                     sb.Append(_cells[row, column]).Append('\t');
                 }
-                sb.Append(Global.NL);
+                sb.Append(Environment.NewLine);
             }
 
             return sb.ToString();
