@@ -33,6 +33,27 @@ namespace Utilities.Extensions
 
         #region ##### IEnumerable #####
 
+        public static IEnumerable<T> GetCorresponding<T, TKey>(this IEnumerable<T> sequence, Func<T, TKey> keyExtractor, params TKey[] keys)
+        {
+            var tmp = sequence.Select(v => (Item: v, Key: keyExtractor(v))).MakeCached();
+
+            foreach (var key in keys)
+            {
+                yield return tmp.First(inf => Equals(inf.Key, key)).Item;
+            }
+        }
+
+        public static IEnumerable<T> DublicateEach<T>(this IEnumerable<T> sequence, int numOfDublicates)
+        {
+            foreach (var item in sequence)
+            {
+                for (int i = 0; i < numOfDublicates; i++)
+                {
+                    yield return item;
+                }
+            }
+        }
+
         //public static IEnumerable<T> SkipNulls<T>(this IEnumerable<T> sequence)
         //{
         //    foreach (var item in sequence)
@@ -43,6 +64,23 @@ namespace Utilities.Extensions
         //        }
         //    }
         //}
+
+        public static IEnumerable<T> Max<T>(this IEnumerable<T> sequence, int numOfMaxElements)
+        {
+            var list = sequence.ToList();
+            for (int i = 0; i < numOfMaxElements; i++)
+            {
+                var element = list.Max();
+                list.Remove(element);
+
+                yield return element;
+            }
+        }
+
+        public static IEnumerable<T> ToEmptyIfTrue<T>(this IEnumerable<T> sequence, bool condition)
+        {
+            return condition ? Enumerable.Empty<T>() : sequence;
+        }
 
         public static IEnumerable<T> SkipFirstItem<T>(this IEnumerable<T> sequence)
         {
@@ -343,6 +381,14 @@ namespace Utilities.Extensions
                     yield return item;
                 } 
             }
+        }
+        public static IEnumerable<T> GetRangeAroundSafe<T>(this IEnumerable<T> sequence, int center, int count)
+        {
+            var from = center - count / 2;
+            count -= from.NegativeToZero() - from;
+            from = from.NegativeToZero();
+
+            return sequence.GetRangeSafe(from, count);
         }
         public static List<T> GetRangeTill<T>(this IEnumerable<T> sequence, int from, int to)
         {
@@ -864,6 +910,10 @@ namespace Utilities.Extensions
                 .Count();
         }
         public static bool ContainsAll<T>(this IEnumerable<T> sequence, params T[] elements)
+        {
+            return sequence.ContainsAll(elements.AsEnumerable());
+        }
+        public static bool ContainsAll<T>(this IEnumerable<T> sequence, IEnumerable<T> elements)
         {
             var remainingElements = elements.ToList();
             foreach (var value in sequence)

@@ -42,6 +42,12 @@ namespace Utilities.Extensions
 
             return sequence.Find(max);
         }
+        public static FindResult<T> FindMax<T, TKey>(this IEnumerable<T> sequence, Func<T, TKey> keyExtractor)
+        {
+            var max = sequence.Max(keyExtractor);
+
+            return sequence.Find(v => Equals(keyExtractor(v), max));
+        }
 
         public static FindResult<T> FindClosest<T>(this IEnumerable<T> sequence, Func<T, double> keySelector, double key)
         {
@@ -118,6 +124,14 @@ namespace Utilities.Extensions
         public static IEnumerable<int> ToIntegers(this IEnumerable<float> sequence)
         {
             return sequence.Select(v => v.Round());
+        }
+        public static IEnumerable<TTo> ChangeType<TTo, TFrom>(this IEnumerable<TFrom> sequence)
+            where TTo : struct
+            where TFrom : struct
+        {
+            return sequence
+                .Select(v => Convert.ChangeType(v, typeof(TTo)))
+                .Cast<TTo>();
         }
 
         public static IEnumerable<string> ToExcelTable(this IEnumerable<double> sequence, bool useComma = false)

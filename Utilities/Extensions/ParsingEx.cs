@@ -13,6 +13,11 @@ namespace Utilities.Extensions
     {
         const NumberStyles IntegerStyle = NumberStyles.Any ^ NumberStyles.AllowThousands;
 
+        public static bool ParseToBoolean(this string str)
+        {
+            return bool.Parse(str);
+        }
+
         public static sbyte? TryParseToInt8Invariant(this string str)
         {
             var ok = sbyte.TryParse(str, IntegerStyle, CultureInfo.InvariantCulture, out sbyte parsed);

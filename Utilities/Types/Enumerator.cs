@@ -16,6 +16,7 @@ namespace Utilities.Types
 
         public int Index { get; private set; } = -1;
         public T Current => _enumerator.Current;
+        public bool IsFinished { get; private set; }
         object IEnumerator.Current => _enumerator.Current;
 
         public Enumerator(IEnumerable<T> sequence)
@@ -35,6 +36,16 @@ namespace Utilities.Types
                 yield return AdvanceOrThrow();
             }
         }
+        public IEnumerable<T> AdvanceRange()
+        {
+            while (MoveNext())
+            {
+                yield return Current;
+            }
+
+            IsFinished = true;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -74,6 +85,7 @@ namespace Utilities.Types
             else
             {
                 Index = -1;
+                IsFinished = true;
             }
 
             return haveItem;

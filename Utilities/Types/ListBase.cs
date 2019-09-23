@@ -6,9 +6,10 @@ using Utilities.Extensions;
 
 namespace Utilities.Types
 {
-    public class ListBase<T> : IList<T>
+    public class ListBase<T, TCollection> : IList<T>
+        where TCollection : IList<T>
     {
-        protected readonly IList<T> _baseCollection;
+        protected readonly TCollection _baseCollection;
 
         public virtual T this[int index]
         {
@@ -20,16 +21,16 @@ namespace Utilities.Types
 
         public virtual bool IsReadOnly => throw new NotImplementedException();
 
-        public ListBase(IList<T> baseCollection)
+        public ListBase(TCollection baseCollection)
         {
             _baseCollection = baseCollection;
         }
 
-        public ListBase<T> Add(params T[] value)
+        public ListBase<T, TCollection> Add(params T[] value)
         {
             return Add((IEnumerable<T>)value);
         }
-        public ListBase<T> Add(IEnumerable<T> values)
+        public ListBase<T, TCollection> Add(IEnumerable<T> values)
         {
             foreach (var value in values)
             {

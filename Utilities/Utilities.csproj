@@ -31,7 +31,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\..\UnityProjects\AI Racings\Assets\Plugins\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -83,6 +83,7 @@
     <Compile Include="Extensions\DTO\ReadExactInfo.cs" />
     <Compile Include="Extensions\DTO\Table.cs" />
     <Compile Include="Extensions\DynamicEx.cs" />
+    <Compile Include="Extensions\EnumeratorEx.cs" />
     <Compile Include="Extensions\EnumEx.cs" />
     <Compile Include="Extensions\Exceptions\ReadExactZeroReceivedException.cs" />
     <Compile Include="Extensions\DTO\FindResult.cs" />
@@ -149,6 +150,7 @@
     <Compile Include="Types\IEqualityComparerAction.cs" />
     <Compile Include="Types\ListBase.cs" />
     <Compile Include="Types\Matlab\Class1.cs" />
+    <Compile Include="Types\PeriodDelay.cs" />
     <Compile Include="Types\Property.cs" />
     <Compile Include="Types\Reporter.cs" />
     <Compile Include="Types\GCPinner.cs" />

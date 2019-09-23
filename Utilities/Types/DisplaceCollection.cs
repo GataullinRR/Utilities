@@ -1,25 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using Utilities.Extensions;
 
 namespace Utilities.Types
 {
+    public interface IObservableCollection<T> : IList<T>, INotifyCollectionChanged
+    {
+
+    }
+
     /// <summary>
     /// This collection removes elements from the beginning to keep it's size constant
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class DisplaceCollection<T> : ListBase<T>
+    public class DisplaceCollection<T> : ListBase<T, ObservableCollection<T>>, IObservableCollection<T>
     {
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
+
         /// <summary>
         /// Max amount of items
         /// </summary>
         public int Capacity { get; }
 
         public DisplaceCollection(int capacity)
-            : base(new List<T>(capacity))
+            : base(new ObservableCollection<T>(new List<T>(capacity)))
         {
             Capacity = capacity;
+            _baseCollection.CollectionChanged += _baseCollection_CollectionChanged;
+        }
+        void _baseCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            CollectionChanged?.Invoke(this, e);
         }
 
         public void AddRange(IList<T> array)

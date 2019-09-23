@@ -8,11 +8,42 @@ using System.Text;
 using Utilities;
 using Utilities.Extensions;
 using Utilities.Types;
+using System.Runtime.CompilerServices;
 
 namespace Utilities.Extensions
 {
     public static class CommonEx
     {
+        class Parser<T> where T : struct
+        {
+            readonly Func<string, T?> _parser;
+
+            public Parser(Func<string, T?> parser)
+            {
+                _parser = parser;
+            }
+
+            public bool TryParse(string value, out T modelValue)
+            {
+                var raw = _parser(value);
+                modelValue = raw.HasValue ? raw.Value : default;
+
+                return raw.HasValue;
+            }
+        }
+        public delegate bool TryParseDelegate<T>(string serialized, out T value);
+        public static TryParseDelegate<T> ToOldTryParse<T>(this Func<string, T?> tryParse)
+            where T : struct
+        {
+            return new Parser<T>(tryParse).TryParse;
+        }
+
+        public static T IfOrNull<T>(this T value, bool condition)
+            where T : class
+        {
+            return condition ? value : null;
+        }
+
         public static IEnumerable<T> ToSequence<T>(this T value)
         {
             yield return value;

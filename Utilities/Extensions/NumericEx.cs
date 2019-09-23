@@ -86,6 +86,14 @@ namespace Utilities.Extensions
         public static byte ToByte(this char value) => Convert.ToByte(value);
         public static byte ToByte(this int value) => Convert.ToByte(value);
 
+        public static short ToInt16(this decimal value) => Convert.ToInt16(value);
+        public static short ToInt16(this double value) => Convert.ToInt16(value);
+        public static short ToInt16(this float value) => Convert.ToInt16(value);
+        public static short ToInt16(this short value) => Convert.ToInt16(value);
+        public static short ToInt16(this char value) => Convert.ToInt16(value);
+        public static short ToInt16(this byte value) => Convert.ToInt16(value);
+        public static short ToInt16(this uint value) => Convert.ToInt16(value);
+
         public static int ToInt32(this decimal value) => Convert.ToInt32(value);
         public static int ToInt32(this double value) => Convert.ToInt32(value);
         public static int ToInt32(this float value) => Convert.ToInt32(value);
@@ -113,6 +121,8 @@ namespace Utilities.Extensions
         public static long ToInt64(this char value) => Convert.ToInt64(value);
         public static long ToInt64(this byte value) => Convert.ToInt64(value);
         public static long ToInt64(this uint value) => Convert.ToInt64(value);
+
+        public static Int16 ToInt16(this int value) => Convert.ToInt16(value);
 
         public static UInt16 ToUInt16(this decimal value) => Convert.ToUInt16(value);
         public static UInt16 ToUInt16(this double value) => Convert.ToUInt16(value);

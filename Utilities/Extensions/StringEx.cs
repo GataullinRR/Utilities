@@ -46,6 +46,11 @@ namespace Utilities.Extensions
             return encoding.GetBytes(str);
         }
 
+        public static bool IsASCII(this string str)
+        {
+            return Encoding.UTF8.GetByteCount(str) == str.Length;
+        }
+
         /// <summary>
         /// Разворачивает объекты реализующие IEnumerable
         /// </summary>
@@ -121,6 +126,15 @@ namespace Utilities.Extensions
         public static string Remove(this string str, string entity)
         {
             return str.Replace(entity, "");
+        }
+        public static string Remove(this string str, params string[] entities)
+        {
+            foreach (var entity in entities)
+            {
+                str = str.Remove(entity);
+            }
+
+            return str;
         }
 
         public static string ToClipboard(this string str)

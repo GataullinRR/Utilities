@@ -18,6 +18,16 @@ namespace Utilities.Extensions
             synchronizationContext.Send(o => action(), null);
         }
 
+        public static async Task<T> RunAsync<T>(this Func<T> func)
+        {
+            return await Task.Run(func);
+        }
+
+        public static async Task<T[]> ToArrayAsync<T>(this IEnumerable<T> sequence)
+        {
+            return await Task.Run(() => sequence.ToArray());
+        }
+
         //public static Task NoThrowWhenCanceled(this Task continuation)
         //{
         //    return continuation.ContinueWith(
